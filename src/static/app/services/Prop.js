@@ -13,6 +13,7 @@
                     return {
                         "prop": "Atom",
                         "string": x,
+                        "formulaID": 0
                     };
                 };
             };
@@ -22,7 +23,9 @@
                     return {
                         "prop": "True",
                         "string": "T",
+                        "unicode": "\u22A4",
                         "cont": true,
+                        "formulaID": 1
                     };
                 };
             };
@@ -32,7 +35,9 @@
                     return {
                         "prop": "False",
                         "string": "F",
-                        "cont": false
+                        "unicode": "\u22A5",
+                        "cont": false,
+                        "formulaID": 2
                     };
                 };
             };
@@ -42,7 +47,9 @@
                     return {
                         "prop": "And",
                         "string": "&",
-                        "cont": [p1, p2]
+                        "unicode": "\u2227",
+                        "cont": [p1, p2],
+                        "formulaID": 3
                     };
                 };
             };
@@ -52,7 +59,9 @@
                     return {
                         "prop": "Or",
                         "string": "|",
-                        "cont": [p1, p2]
+                        "unicode": "\u2228",
+                        "cont": [p1, p2],
+                        "formulaID": 4
                     };
                 };
             };
@@ -62,7 +71,9 @@
                     return {
                         "prop": "Imp",
                         "string": "==>",
-                        "cont": [p1, p2]
+                        "unicode": "\u2283",
+                        "cont": [p1, p2],
+                        "formulaID": 5
                     };
                 };
             };
@@ -113,7 +124,7 @@
                 }
 
                 // Atom, True and False case. Shouldn't be more than one character long
-                if (string.len > 1) {
+                if (string.length > 1) {
                     throw "Atoms shouldn't be more than one character";
                 }
 
@@ -142,27 +153,27 @@
                     case 'Atom':
                         return t.string;
                     case 'True':
-                        return t.string;
+                        return t.unicode;
                     case 'False':
-                        return t.string;
+                        return t.unicode;
                     case 'And':
                         cont0 = t.cont[0];
                         cont1 = t.cont[1];
                         paren = p > and_prec;
                         return showParen(paren, toStringPrec(and_prec + 1, cont0) +
-                            " & " + toStringPrec(and_prec + 1, cont1));
+                            " " + t.unicode + " " + toStringPrec(and_prec + 1, cont1));
                     case 'Or':
                         cont0 = t.cont[0];
                         cont1 = t.cont[1];
                         paren = p > or_prec;
                         return showParen(paren, toStringPrec(or_prec + 2, cont0) +
-                            " | " + toStringPrec(or_prec + 2, cont1));
+                            " " + t.unicode + " " + toStringPrec(or_prec + 2, cont1));
                     case 'Imp':
                         cont0 = t.cont[0];
                         cont1 = t.cont[1];
                         paren = p > imp_prec;
                         return showParen(paren, toStringPrec(imp_prec + 3, cont0) +
-                            " ==> " + toStringPrec(imp_prec + 3, cont1));
+                            " " + t.unicode + " " + toStringPrec(imp_prec + 3, cont1));
                     default:
                         console.error("Didn't find any matching propostions");
                 }

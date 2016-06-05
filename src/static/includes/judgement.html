@@ -1,0 +1,5 @@
+<form novalidate class="judgement-form">
+    <h1> Enter your judgement </h1>
+    <input type="text" ng-class="{'invalid-input': jc.invalidJud}" ng-model="jc.judgement" ng-change="jc.verifyInput()" />
+    <input type="submit" ng-disabled="jc.invalidJud" ng-click="jc.sendJudge()" value="Start the Derivation" />
+</form>
