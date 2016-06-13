@@ -23,6 +23,27 @@
             ctrl.rules = currentCalc.getRuleList();
             ctrl.entailsSymbol = currentCalc.entailsSymbol;
 
+            // setTimeout(function() {
+            //     console.log("Started");
+            //     var $this = document.createElementNS("http://www.w3.org/1998/Math/MathML", 'mfrac');
+            //     $this.innerHTML = '<mrow id="children' + parseInt(ctrl.der.branchid) + '" class="conclusion">\
+            //                         <mrow>\
+            //                             <mi>b</mi>\
+            //                         </mrow>\
+            //                     </mrow>\
+            //                     <mrow class="assumption">\
+            //                         <mo>' + ctrl.entailsSymbol + '</mo>\
+            //                         <mrow class="goal clickable">\
+            //                             <mi>' + ctrl.propToString(ctrl.getTheorem(ctrl.der.branchid).obj.theorem.judgement) + '</mi>\
+            //                         </mrow>\
+            //                     </mrow>';
+            //     $("#mathml-derivation").append($this);
+            //     MathJax.Hub.Typeset("mathml-derivation");
+            // }, 1000);
+            // setTimeout(function(){
+            //     MathJax.Hub.Typeset("mathml-derivation");
+            // },1500);
+
             ctrl.pullDown = function() {
                 $('.pulled-down').each(function() {
                     var $this = $(this);
@@ -33,12 +54,15 @@
 
             ctrl.verifyInput = function(j) {
                 try {
-                    console.log(j);
                     Prop.fromString(j);
                     ctrl.invalidJud = false;
                 } catch (err) {
                     ctrl.invalidJud = true;
                 }
+            };
+
+            ctrl.getCurrentChildID = function() {
+                return "#children" + parseInt(ctrl.currentTheoremId);
             };
 
             ctrl.applyRule = function(rule) {
@@ -52,6 +76,8 @@
                     d.resolve(ctrl.der);
                     d.promise.then(function(result) {
                         ctrl.pullDown();
+                        var script = document.querySelector('.mathml-derivation');
+                        MathJax.Hub.Queue(["Reprocess", MathJax.Hub, script]);
                     });
                     ctrl.currentTheoremId += 1;
                     ctrl.currentPropId = -1;
@@ -102,5 +128,10 @@
                 ctrl.currentPropId = -1;
             };
 
-        });
+        })
+        .filter('to_trusted', ['$sce', function($sce){
+            return function(text) {
+                return $sce.trustAsHtml(text);
+            };
+        }]);
 })();

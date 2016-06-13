@@ -1,68 +1,67 @@
 <div class="container-fluid" id="editor-view-container" ng-cloak>
-    <div class="row">
-        <div class="derivation-jumbotron col-xs-12">
+    <div class="">
+        <div class="derivation-jumbotron col-xs-9">
             <div class="content">
-                <div id="children{{ec.der.branchid}}" class="theorem-top row">
-                    <div class="pulled-down" ng-repeat="data in ec.der.children" ng-include="'tree_item_renderer.html'" ng-class="{'col-xs-12':ec.der.children.length == 1, 'col-xs-6':ec.der.children.length == 2,
-                        'col-xs-4':ec.der.children.length == 3}"></div>
-                </div>
-                <div class="text-center">
-                    <span 
-                    class="clickable" 
-                    ng-repeat="formula in ec.getTheorem(ec.der.branchid).context track by $index" 
-                    ng-class="{'chosen-theorem': ec.der.branchid == ec.currentTheoremId && $index == ec.currentPropId}" 
-                    ng-click="ec.setCurrentId(ec.der.branchid, $index)">
-                    <span ng-if="$index !== 0">, </span>
-                    {{ec.propToString(formula)}}
-                    </span> {{ec.entailsSymbol}}
-                    <span 
-                    class="clickable" 
-                    ng-click="ec.setCurrentId(ec.der.branchid, -1)" 
-                    ng-class="{'chosen-theorem': ec.der.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
-                        {{ec.propToString(ec.getTheorem(ec.der.branchid).obj.theorem.judgement)}}
-                    </span>
-                </div>
+                {{data = ec.der;""}}
+                <math display="block" id="mathml-derivation">
+                    <mrow class="beginning">
+                    </mrow>
+                </math>
             </div>
         </div>
-        <div class="derivation-sidebar col-xs-12">
-                <img 
-                ng-repeat="rule in ec.rules track by $index" 
-                class="rule-img" 
-                ng-src="{{rule.imgSrc}}" 
-                alt="{{rule.name}}" 
-                ng-click="ec.applyRule(rule)">
-        </div>
-    </div>
-    <div ng-if="ec.logicVariableInput" class="centered-input">
-        <form class="centered-input-content">
-            <input ng-repeat="var in ec.logicVariableList" class="logic-variable-input" ng-class="{'invalid-input': ec.invalidJud}" type="text" ng-model="lv" placeholder="{{var}}" ng-change="ec.verifyInput(lv)" >
-            <input type="submit" ng-click="ec.applyLogicVariableRule()" name="submit" id="submit-logic-variables" ng-disabled="ec.invalidJud" value="Submit">
-        </form>
-        <div ng-click="ec.logicVariableInput = false" class="back-button" title="Go Back">
+        <div class="derivation-sidebar col-xs-3">
+            <div ng-repeat="rule in ec.rules track by $index">
+                <img class="rule-img" ng-src="{{rule.imgSrc}}" alt="{{rule.name}}" ng-click="ec.applyRule(rule)">
+            </div>
         </div>
     </div>
 </div>
-
-
+<div ng-if="ec.logicVariableInput" class="centered-input">
+    <form class="centered-input-content">
+        <input ng-repeat="var in ec.logicVariableList" class="logic-variable-input" ng-class="{'invalid-input': ec.invalidJud}" type="text" ng-model="lv" placeholder="{{var}}" ng-change="ec.verifyInput(lv)">
+        <input type="submit" ng-click="ec.applyLogicVariableRule()" name="submit" id="submit-logic-variables" ng-disabled="ec.invalidJud" value="Submit">
+    </form>
+    <div ng-click="ec.logicVariableInput = false" class="back-button" title="Go Back">
+    </div>
+</div>
 <!-- Courtesy of http://jsfiddle.net/brendanowen/uXbn6/8/ -->
 <script type="text/ng-template" id="tree_item_renderer.html">
-    <div id="children{{data.branchid}}" class="theorem-top row">
+    <!-- <div id="children{{data.branchid}}" class="theorem-top row">
         <div class="pulled-down" ng-repeat="data in data.children" ng-include="'tree_item_renderer.html'" ng-class="{
                 'col-xs-12': ec.getChildrenLen(data.parentid) == 1, 
              'col-xs-6': ec.getChildrenLen(data.parentid) == 2,
              'col-xs-4': ec.getChildrenLen(data.parentid) == 3}">
         </div>
     </div>
-    <div class="text-center" ng-mouseenter="hover = true"
-        ng-mouseleave="hover = false">
-        <span class="clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
-        <span ng-if="$index !== 0">, </span>
-        {{ec.propToString(formula)}}
-        </span> {{ec.entailsSymbol}}
-        <span class="clickable" ng-click="ec.setCurrentId(data.branchid, -1)" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
-            {{ec.propToString(ec.getTheorem(data.branchid).obj.theorem.judgement)}}
-        </span>
-        <img src="/static/images/back-button-small.png" class="back-button-img" ng-click="ec.deleteBranch(data.parentid, data.branchid)" 
-        ng-class="{hidden: !hover}">
-    </div>
+    <div ng-mouseenter="hover = true" ng-mouseleave="hover = false">
+        <div class="branch">
+            <span class="clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
+            <span ng-if="$index !== 0">, </span> {{ec.propToString(formula)}}
+            </span> {{ec.entailsSymbol}}
+            <span class="clickable" ng-click="ec.setCurrentId(data.branchid, -1)" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
+                {{ec.propToString(ec.getTheorem(data.branchid).obj.theorem.judgement)}}
+            </span>
+            <div class="back-button-img" ng-show="hover" ng-if="data.parentid !== -1">
+                <img src="/static/images/back-button-small.png" class="back-button-img" ng-click="ec.deleteBranch(data.parentid, data.branchid)">
+            </div>
+        </div>
+    </div> -->
+    <mstyle displaystyle="true">
+        <mfrac>
+            <mrow id="children{{data.branchid}}" class="conclusion">
+                <mrow ng-repeat="data in data.children" ng-include="'tree_item_renderer.html'">
+                </mrow>
+            </mrow>
+            <mrow class="assumption">
+                <mrow class="context clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
+                    <mo ng-if="$index !== 0">, </mo> 
+                    <mi>{{ec.propToString(formula)}}</mi>
+                </mrow>
+                <mo>{{ec.entailsSymbol}}</mo>
+                <mrow class="goal clickable" ng-click="ec.setCurrentId(data.branchid, -1)" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
+                    <mi>{{ec.propToString(ec.getTheorem(data.branchid).obj.theorem.judgement)}}</mi>
+                </mrow>
+            </mrow>
+        </mfrac>
+    </mstyle>
 </script>
