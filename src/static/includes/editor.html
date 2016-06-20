@@ -2,11 +2,28 @@
     <div class="">
         <div class="derivation-jumbotron col-xs-9">
             <div class="content">
-                {{data = ec.der;""}}
-                <math display="block" id="mathml-derivation">
+                <mathjax-bind ng-transclude></mathjax-bind>
+                <!-- <math display="block">
                     <mrow class="beginning">
+                        <mstyle displaystyle="true">
+                            <mfrac>
+                                <mrow id="children{{data.branchid}}" class="conclusion">
+                                    <mrow ng-include="'tree_item_renderer.html'"></mrow>
+                                </mrow>
+                                <mrow id="branch{{data.branchid}}" class="assumption">
+                                    <mrow id="branch{{data.branchid}}-context" class="context clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
+                                        <mo ng-if="$index !== 0">, </mo>
+                                        <mi>{{ec.propToString(formula)}}</mi>
+                                    </mrow>
+                                    <mo>{{ec.entailsSymbol}}</mo>
+                                    <mrow id="branch{{data.branchid}}-goal" class="goal clickable" ng-click="ec.setCurrentId(data.branchid, -1)" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
+                                        <mi>{{ec.propToString(ec.getTheorem(data.branchid).obj.theorem.judgement)}}</mi>
+                                    </mrow>
+                                </mrow>
+                            </mfrac>
+                        </mstyle>
                     </mrow>
-                </math>
+                </math> -->
             </div>
         </div>
         <div class="derivation-sidebar col-xs-3">
@@ -25,36 +42,18 @@
     </div>
 </div>
 <!-- Courtesy of http://jsfiddle.net/brendanowen/uXbn6/8/ -->
-<script type="text/ng-template" id="tree_item_renderer.html">
-    <!-- <div id="children{{data.branchid}}" class="theorem-top row">
-        <div class="pulled-down" ng-repeat="data in data.children" ng-include="'tree_item_renderer.html'" ng-class="{
-                'col-xs-12': ec.getChildrenLen(data.parentid) == 1, 
-             'col-xs-6': ec.getChildrenLen(data.parentid) == 2,
-             'col-xs-4': ec.getChildrenLen(data.parentid) == 3}">
-        </div>
-    </div>
-    <div ng-mouseenter="hover = true" ng-mouseleave="hover = false">
-        <div class="branch">
-            <span class="clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
-            <span ng-if="$index !== 0">, </span> {{ec.propToString(formula)}}
-            </span> {{ec.entailsSymbol}}
-            <span class="clickable" ng-click="ec.setCurrentId(data.branchid, -1)" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
-                {{ec.propToString(ec.getTheorem(data.branchid).obj.theorem.judgement)}}
-            </span>
-            <div class="back-button-img" ng-show="hover" ng-if="data.parentid !== -1">
-                <img src="/static/images/back-button-small.png" class="back-button-img" ng-click="ec.deleteBranch(data.parentid, data.branchid)">
-            </div>
-        </div>
-    </div> -->
+<!-- <script type="text/ng-template" id="tree_item_renderer.html">
     <mstyle displaystyle="true">
         <mfrac>
             <mrow id="children{{data.branchid}}" class="conclusion">
-                <mrow ng-repeat="data in data.children" ng-include="'tree_item_renderer.html'">
+                <mrow ng-repeat="data in data.children">
+                    <math ng-include="'tree_item_renderer.html'"></math>
+                    <mspace width='1em'></mspace>
                 </mrow>
             </mrow>
             <mrow class="assumption">
                 <mrow class="context clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
-                    <mo ng-if="$index !== 0">, </mo> 
+                    <mo ng-if="$index !== 0">, </mo>
                     <mi>{{ec.propToString(formula)}}</mi>
                 </mrow>
                 <mo>{{ec.entailsSymbol}}</mo>
@@ -64,4 +63,4 @@
             </mrow>
         </mfrac>
     </mstyle>
-</script>
+</script> -->

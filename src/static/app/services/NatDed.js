@@ -17,7 +17,7 @@
                 srvc.derivation = {
                     "theorem": {
                         "judgement": prop,
-                        "context": []
+                        "context": [Prop.Atom('a')]
                     },
                     "branchid": srvc.currentID,
                     "applied": false,
@@ -130,7 +130,7 @@
                     AlertService.customAlert("Theorem already has rule applied to it");
                     throw "Theorem already has rule applied to it, user has been alerted";
                 } else {
-                    obj.currentTheorem.applied = true;
+                    obj.currentTheorem.applied = false;
                 }
 
                 var nextLevel = {

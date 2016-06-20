@@ -2,7 +2,7 @@
     "use strict";
 
     angular.module('derivationEditor')
-        .controller('editorController', function(Prop, NatDed, $q, $routeParams) {
+        .controller('editorController', function($scope, Prop, NatDed, $q, $routeParams) {
             var ctrl = this;
 
             ctrl.currentTheoremId = 0;
@@ -20,36 +20,15 @@
             var currentCalc = NatDed;
 
             ctrl.der = currentCalc.getInitProp(prop);
+            $scope.der = ctrl.der;
+            $scope.data = ctrl.der;
             ctrl.rules = currentCalc.getRuleList();
             ctrl.entailsSymbol = currentCalc.entailsSymbol;
 
-            // setTimeout(function() {
-            //     console.log("Started");
-            //     var $this = document.createElementNS("http://www.w3.org/1998/Math/MathML", 'mfrac');
-            //     $this.innerHTML = '<mrow id="children' + parseInt(ctrl.der.branchid) + '" class="conclusion">\
-            //                         <mrow>\
-            //                             <mi>b</mi>\
-            //                         </mrow>\
-            //                     </mrow>\
-            //                     <mrow class="assumption">\
-            //                         <mo>' + ctrl.entailsSymbol + '</mo>\
-            //                         <mrow class="goal clickable">\
-            //                             <mi>' + ctrl.propToString(ctrl.getTheorem(ctrl.der.branchid).obj.theorem.judgement) + '</mi>\
-            //                         </mrow>\
-            //                     </mrow>';
-            //     $("#mathml-derivation").append($this);
-            //     MathJax.Hub.Typeset("mathml-derivation");
-            // }, 1000);
-            // setTimeout(function(){
-            //     MathJax.Hub.Typeset("mathml-derivation");
-            // },1500);
-
-            ctrl.pullDown = function() {
-                $('.pulled-down').each(function() {
-                    var $this = $(this);
-                    var $thisParent = $this.parent();
-                    $this.css('margin-top', $thisParent.height() - $this.height());
-                });
+            ctrl.addMath = function() {
+                // var newMath = '<math><mi>n</mi></math>';
+                // var math = MathJax.Hub.getAllJax("children0")[0];
+                // MathJax.Hub.Queue(["Text", math, newMath]);
             };
 
             ctrl.verifyInput = function(j) {
@@ -65,7 +44,17 @@
                 return "#children" + parseInt(ctrl.currentTheoremId);
             };
 
+            ctrl.addOne = function() {
+                $scope.watchList.test++;
+            };
+
             ctrl.applyRule = function(rule) {
+                $('.context').click(function() {
+                    console.log(this.id);
+                });
+                $('.goal').click(function() {
+                    console.log(this.id);
+                });
                 if (rule.hasLogicVariables) {
                     ctrl.logicVariableInput = true;
                     ctrl.logicVariableList = rule.logicVariables;
@@ -75,9 +64,8 @@
                     ctrl.der = rule.fn(ctrl.currentTheoremId, ctrl.currentPropId);
                     d.resolve(ctrl.der);
                     d.promise.then(function(result) {
-                        ctrl.pullDown();
-                        var script = document.querySelector('.mathml-derivation');
-                        MathJax.Hub.Queue(["Reprocess", MathJax.Hub, script]);
+                        ctrl.addMath();
+                        // MathJax.Hub.Queue(["Reprocess", MathJax.Hub]);
                     });
                     ctrl.currentTheoremId += 1;
                     ctrl.currentPropId = -1;
@@ -109,6 +97,8 @@
                 return Prop.toString(prop);
             };
 
+            $scope.propToString = ctrl.propToString;
+
             ctrl.setCurrentId = function(tid, pid) {
                 ctrl.currentTheoremId = tid;
                 ctrl.currentPropId = pid;
@@ -129,7 +119,7 @@
             };
 
         })
-        .filter('to_trusted', ['$sce', function($sce){
+        .filter('to_trusted', ['$sce', function($sce) {
             return function(text) {
                 return $sce.trustAsHtml(text);
             };

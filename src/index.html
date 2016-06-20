@@ -8,7 +8,7 @@
     <link href="/static/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/style/main.css" rel="stylesheet">
     <!-- lib -->
-    <script type="text/javascript" src="/static/bower_components/MathJax/unpacked/MathJax.js?config=MML_CHTML"></script>
+    <script type="text/javascript" src="/static/bower_components/MathJax/unpacked/MathJax.js?config=MML_CHTML&delayStartupUntil=configured&dummy=.js"></script>
     <script type="text/javascript" src="/static/bower_components/angular/angular.min.js"></script>
     <script type="text/javascript" src="/static/bower_components/angular-route/angular-route.min.js"></script>
     <script type="text/javascript" src="/static/bower_components/jquery/dist/jquery.min.js"></script>
@@ -17,17 +17,13 @@
     <script src="/static/app/services/Prop.js"></script>
     <script src="/static/app/services/AlertService.js"></script>
     <script src="/static/app/services/NatDed.js"></script>
-    <script src="/static/app/directives/equalSpaces.js"></script>
     <script src="/static/app/controllers/editorController.js"></script>
     <script src="/static/app/controllers/judgementController.js"></script>
+    <script src="/static/app/directives/mathJaxBind.js"></script>
 </head>
 
 <body>
-<math display="block" id="mathml-derivation">
-                    <mrow class="beginning">
-                    </mrow>
-                </math>
-    <ng-view></ng-view>
+<ng-view></ng-view>
 </body>
 
 </html>
