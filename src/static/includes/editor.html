@@ -1,34 +1,13 @@
-<div class="container-fluid" id="editor-view-container" ng-cloak>
-    <div class="">
+<div class="container-fluid" id="editor-view-container" ng-init="ec.loadMath()" ng-cloak>
+    <div class="row">
         <div class="derivation-jumbotron col-xs-9">
             <div class="content">
-                <mathjax-bind ng-transclude></mathjax-bind>
-                <!-- <math display="block">
-                    <mrow class="beginning">
-                        <mstyle displaystyle="true">
-                            <mfrac>
-                                <mrow id="children{{data.branchid}}" class="conclusion">
-                                    <mrow ng-include="'tree_item_renderer.html'"></mrow>
-                                </mrow>
-                                <mrow id="branch{{data.branchid}}" class="assumption">
-                                    <mrow id="branch{{data.branchid}}-context" class="context clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
-                                        <mo ng-if="$index !== 0">, </mo>
-                                        <mi>{{ec.propToString(formula)}}</mi>
-                                    </mrow>
-                                    <mo>{{ec.entailsSymbol}}</mo>
-                                    <mrow id="branch{{data.branchid}}-goal" class="goal clickable" ng-click="ec.setCurrentId(data.branchid, -1)" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
-                                        <mi>{{ec.propToString(ec.getTheorem(data.branchid).obj.theorem.judgement)}}</mi>
-                                    </mrow>
-                                </mrow>
-                            </mfrac>
-                        </mstyle>
-                    </mrow>
-                </math> -->
+                <div mathjax-bind ng-transclude></div>
             </div>
         </div>
         <div class="derivation-sidebar col-xs-3">
-            <div ng-repeat="rule in ec.rules track by $index">
-                <img class="rule-img" ng-src="{{rule.imgSrc}}" alt="{{rule.name}}" ng-click="ec.applyRule(rule)">
+            <div class="rule-display clickable" ng-repeat="rule in ec.rules track by $index" ng-click="ec.applyRule(rule)">
+                <mathjax-rule rule='rule'></mathjax-rule>
             </div>
         </div>
     </div>
@@ -41,26 +20,3 @@
     <div ng-click="ec.logicVariableInput = false" class="back-button" title="Go Back">
     </div>
 </div>
-<!-- Courtesy of http://jsfiddle.net/brendanowen/uXbn6/8/ -->
-<!-- <script type="text/ng-template" id="tree_item_renderer.html">
-    <mstyle displaystyle="true">
-        <mfrac>
-            <mrow id="children{{data.branchid}}" class="conclusion">
-                <mrow ng-repeat="data in data.children">
-                    <math ng-include="'tree_item_renderer.html'"></math>
-                    <mspace width='1em'></mspace>
-                </mrow>
-            </mrow>
-            <mrow class="assumption">
-                <mrow class="context clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
-                    <mo ng-if="$index !== 0">, </mo>
-                    <mi>{{ec.propToString(formula)}}</mi>
-                </mrow>
-                <mo>{{ec.entailsSymbol}}</mo>
-                <mrow class="goal clickable" ng-click="ec.setCurrentId(data.branchid, -1)" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
-                    <mi>{{ec.propToString(ec.getTheorem(data.branchid).obj.theorem.judgement)}}</mi>
-                </mrow>
-            </mrow>
-        </mfrac>
-    </mstyle>
-</script> -->

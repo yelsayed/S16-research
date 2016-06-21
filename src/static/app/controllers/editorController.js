@@ -2,11 +2,11 @@
     "use strict";
 
     angular.module('derivationEditor')
-        .controller('editorController', function($scope, Prop, NatDed, $q, $routeParams) {
+        .controller('editorController', function($scope, Prop, NatDed, $q, $routeParams, MathMLService) {
             var ctrl = this;
 
-            ctrl.currentTheoremId = 0;
-            ctrl.currentPropId = -1;
+            $scope.currentTheoremID = 0;
+            $scope.currentPropId = -1;
             ctrl.logicVariableInput = false;
             ctrl.logicVariableList = [];
             ctrl.invalidJud = false;
@@ -25,11 +25,41 @@
             ctrl.rules = currentCalc.getRuleList();
             ctrl.entailsSymbol = currentCalc.entailsSymbol;
 
-            ctrl.addMath = function() {
-                // var newMath = '<math><mi>n</mi></math>';
-                // var math = MathJax.Hub.getAllJax("children0")[0];
-                // MathJax.Hub.Queue(["Text", math, newMath]);
+            $scope.idCallback =
+                function() {
+                    $('.context').click(function() {
+                        var $this = $(this);
+                        var currentID = this.id;
+
+                        var match = currentID.match(/\d+/g);
+
+                        $scope.currentTheoremID = parseInt(match[0], 10);
+                        $scope.currentPropId = parseInt(match[1], 10);
+
+                        $('.chosen-theorem').removeClass('chosen-theorem');
+                        $this.addClass('chosen-theorem');
+                    });
+                    $('.goal').click(function() {
+                        var $this = $(this);
+                        var currentID = this.id;
+
+                        var match = currentID.match(/\d+/g);
+
+                        $scope.currentTheoremID = parseInt(match[0], 10);
+                        $scope.currentPropId = -1;
+
+                        $('.chosen-theorem').removeClass('chosen-theorem');
+                        $this.addClass('chosen-theorem');
+                    });
+                    $("#branch" + $scope.currentTheoremID + "-goal").addClass('chosen-theorem');
+                };
+
+            ctrl.loadMath = function() {
+                MathMLService.reRenderMathJax($scope.idCallback);
             };
+
+            MathMLService.reRenderMathJax($scope.idCallback);
+
 
             ctrl.verifyInput = function(j) {
                 try {
@@ -41,7 +71,7 @@
             };
 
             ctrl.getCurrentChildID = function() {
-                return "#children" + parseInt(ctrl.currentTheoremId);
+                return "#children" + parseInt($scope.currentTheoremID);
             };
 
             ctrl.addOne = function() {
@@ -49,26 +79,15 @@
             };
 
             ctrl.applyRule = function(rule) {
-                $('.context').click(function() {
-                    console.log(this.id);
-                });
-                $('.goal').click(function() {
-                    console.log(this.id);
-                });
-                if (rule.hasLogicVariables) {
+                if (rule.logicVariables.length !== 0) {
                     ctrl.logicVariableInput = true;
                     ctrl.logicVariableList = rule.logicVariables;
                     ctrl.currentRule = rule;
                 } else {
-                    var d = $q.defer();
-                    ctrl.der = rule.fn(ctrl.currentTheoremId, ctrl.currentPropId);
-                    d.resolve(ctrl.der);
-                    d.promise.then(function(result) {
-                        ctrl.addMath();
-                        // MathJax.Hub.Queue(["Reprocess", MathJax.Hub]);
-                    });
-                    ctrl.currentTheoremId += 1;
-                    ctrl.currentPropId = -1;
+                    ctrl.der = currentCalc.applyRule(rule,
+                                $scope.currentTheoremID, $scope.currentPropId, []);
+                    $scope.currentTheoremID += 1;
+                    $scope.currentPropId = -1;
                 }
             };
 
@@ -78,15 +97,8 @@
                     var val = $(this).val();
                     listOfVals.push(val);
                 });
-
-                var d = $q.defer();
-                ctrl.der = ctrl.currentRule.fn(ctrl.currentTheoremId, ctrl.currentPropId, listOfVals);
-                d.resolve(ctrl.der);
-                d.promise.then(function(result) {
-                    ctrl.pullDown();
-                });
+                ctrl.der = ctrl.currentRule.fn($scope.currentTheoremID, $scope.currentPropId, listOfVals);
                 ctrl.logicVariableInput = false;
-
             };
 
             ctrl.toString = function(i) {
@@ -100,8 +112,9 @@
             $scope.propToString = ctrl.propToString;
 
             ctrl.setCurrentId = function(tid, pid) {
-                ctrl.currentTheoremId = tid;
-                ctrl.currentPropId = pid;
+                console.log('lets see');
+                $scope.currentTheoremID = tid;
+                $scope.currentPropId = pid;
             };
 
             ctrl.getChildrenLen = function(id) {
@@ -114,8 +127,8 @@
 
             ctrl.deleteBranch = function(parentid, id) {
                 ctrl.der = currentCalc.deleteBranch(parentid, id);
-                ctrl.currentTheoremId = parentid;
-                ctrl.currentPropId = -1;
+                $scope.currentTheoremID = parentid;
+                $scope.currentPropId = -1;
             };
 
         })

@@ -116,136 +116,17 @@
                 return srvc.derivation;
             };
 
+            srvc.applyRule = function(rule, currtid, currpid, logicVars) {
+                var logicList = logicVarsFromString(logicVars);
 
-            srvc.ImpIntro = function(currtid, currpid) {
-
+                // Object retrieval
                 var obj = setUpRule(currtid);
+                var nextLevel = {};
 
-                if (obj.currentJudg().prop !== "Imp") {
-                    AlertService.customAlert("Cannot apply Imp Intro rule, please choose something else");
-                    throw "Cannot apply rule, user has been alerted";
-                }
+                var newAssumptionList, newConcList;
 
-                if (obj.currentTheorem.applied) {
-                    AlertService.customAlert("Theorem already has rule applied to it");
-                    throw "Theorem already has rule applied to it, user has been alerted";
-                } else {
-                    obj.currentTheorem.applied = false;
-                }
-
-                var nextLevel = {
-                    "theorem": {
-                        "judgement": obj.currentJudg().cont[1],
-                        "context": []
-                    },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
-                };
-
-                // Clone the list using slice
-                nextLevel.theorem.context = obj.currentCont.slice(0);
-
-                // Pushing the first continuation to the context
-                nextLevel.theorem.context.push(obj.currentJudg().cont[0]);
-
-                // Pushing the new branch to our derivation
-                pushBranch(srvc.derivation, nextLevel, currtid);
-
-                return srvc.derivation;
-            };
-
-            srvc.AndIntro = function(currtid, currpid) {
-
-                var obj = setUpRule(currtid);
-
-                if (obj.currentJudg().prop !== "And") {
-                    AlertService.customAlert("Cannot apply And Intro rule, please choose something else");
-                    throw "Cannot apply rule, user has been alerted";
-                }
-
-                if (obj.currentTheorem.applied) {
-                    AlertService.customAlert("Theorem already has rule applied to it");
-                    throw "Theorem already has rule applied to it, user has been alerted";
-                } else {
-                    obj.currentTheorem.applied = true;
-                }
-
-                var nextLevel1 = {
-                    "theorem": {
-                        "judgement": obj.currentJudg().cont[0],
-                        "context": []
-                    },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
-                };
-
-                var nextLevel2 = {
-                    "theorem": {
-                        "judgement": obj.currentJudg().cont[1],
-                        "context": []
-                    },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
-                };
-
-                // Clone the list using slice
-                nextLevel1.theorem.context = obj.currentCont.slice(0);
-                nextLevel2.theorem.context = obj.currentCont.slice(0);
-
-                // Pushing the new branch to our derivation
-                pushBranch(srvc.derivation, nextLevel1, currtid);
-                pushBranch(srvc.derivation, nextLevel2, currtid);
-
-                return srvc.derivation;
-            };
-
-            srvc.OrIntro1 = function(currtid, currpid) {
-
-                var obj = setUpRule(currtid);
-
-                if (obj.currentJudg().prop !== "Or") {
-                    AlertService.customAlert("Cannot apply Or Intro rule 1, please choose something else");
-                    throw "Cannot apply rule, user has been alerted";
-                }
-
-                if (obj.currentTheorem.applied) {
-                    AlertService.customAlert("Theorem already has rule applied to it");
-                    throw "Theorem already has rule applied to it, user has been alerted";
-                } else {
-                    obj.currentTheorem.applied = true;
-                }
-
-                var nextLevel = {
-                    "theorem": {
-                        "judgement": obj.currentJudg().cont[0],
-                        "context": []
-                    },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
-                };
-
-                // Clone the list using slice
-                nextLevel.theorem.context = obj.currentCont.slice(0);
-
-                // Pushing the new branch to our derivation
-                pushBranch(srvc.derivation, nextLevel, currtid);
-
-                return srvc.derivation;
-            };
-
-            srvc.OrIntro2 = function(currtid, currpid) {
-
-                var obj = setUpRule(currtid);
-
-                if (obj.currentJudg().prop !== "Or") {
+                // Error Checking and input verification
+                if (rule.verify && obj.currentJudg().prop !== rule.prop) {
                     AlertService.customAlert("Cannot apply Or Intro rule 2, please choose something else");
                     throw "Cannot apply rule, user has been alerted";
                 }
@@ -257,24 +138,78 @@
                     obj.currentTheorem.applied = true;
                 }
 
-                var nextLevel = {
-                    "theorem": {
-                        "judgement": obj.currentJudg().cont[1],
-                        "context": []
-                    },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
-                };
+                // This is to replace all occurances of strings with
+                // appropriate continuations
+                if (typeof rule.assumption.goal === "function") {
+                    var varGoalList = [];
+                    newAssumptionList = rule.assumption.goal().cont.map(function(d, index) {
+                        var o = {};
+                        o.string = d;
+                        o.cont = obj.currentJudg().cont[index];
+                        varGoalList.push(o);
+                        console.log(varGoalList);
+                        return obj.currentJudg().cont[index];
+                    });
 
-                // Clone the list using slice
-                nextLevel.theorem.context = obj.currentCont.slice(0);
+                    newConcList = rule.conclusion.map(function(d) {
 
-                // Pushing the new branch to our derivation
-                pushBranch(srvc.derivation, nextLevel, currtid);
+                        var newD = {
+                            context: [],
+                            goal: ""
+                        };
 
-                return srvc.derivation;
+                        console.log(d);
+                        
+                        // Replace variables in context
+                        d.context.map(function(c) {
+                            var newC = {};
+                            varGoalList.forEach(function(d2) {
+                                if (c === d2.string) {
+                                    newD.context.push(d2.cont);
+                                }
+                            });
+                        });
+
+                        // Replace variables in goal
+                        if (typeof d.goal === "function") {
+                            // I should create a function that replaces
+                            // all occurances of the varlist with the continuation
+                        } else if (typeof d.goal === "string") {
+                            varGoalList.forEach(function(d2) {
+                                if (d.goal === d2.string) {
+                                    newD.goal = d2.cont;
+                                }
+                            });
+                        }
+                        return newD;
+                    });
+                } else if (typeof rule.assumption.goal == "string") {
+                    // This is simpler than the previous one but very similar
+                }
+
+                // Next step is to push them all into the
+                // derivation object
+                newConcList.forEach(function(d) {
+                    var nextLevel = {
+                        "theorem": {
+                            "judgement": d.goal,
+                            "context": []
+                        },
+                        "branchid": newID(),
+                        "applied": false,
+                        "parentid": currtid,
+                        "children": []
+                    };
+
+                    nextLevel.theorem.context = obj.currentCont.slice(0);
+
+                    d.context.forEach(function(c) {
+                        nextLevel.theorem.context.push(c);
+                    });
+
+                    pushBranch(srvc.derivation, nextLevel, currtid);
+                });
+
             };
 
             var logicVarsFromString = function(logicVars) {
@@ -288,187 +223,168 @@
                 return logicPropList;
             };
 
-            srvc.AndElim1 = function(currtid, currpid, logicVars) {
-                var logicList = logicVarsFromString(logicVars);
-
-                var obj = setUpRule(currtid);
-
-                if (obj.currentTheorem.applied) {
-                    AlertService.customAlert("Theorem already has rule applied to it");
-                    throw "Theorem already has rule applied to it, user has been alerted";
-                } else {
-                    obj.currentTheorem.applied = true;
-                }
-
-                // Get the 'B' logic variable
-                var b = logicList[0];
-
-                var nextLevel = {
-                    "theorem": {
-                        "judgement": Prop.And(obj.currentJudg, b),
-                        "context": []
+            var AndIntro = function() {
+                return {
+                    "name": "And Introduction",
+                    "latexName": "\u2227I",
+                    "prop": "And",
+                    "logicVariables": [],
+                    "verify": true,
+                    "assumption": {
+                        "context": [],
+                        "goal": Prop.And("A", "B")
                     },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
+                    "conclusion": [{
+                        "context": [],
+                        "goal": "A"
+                    }, {
+                        "context": [],
+                        "goal": "B"
+                    }],
+                    "imgSrc": "/static/images/and-intro.png"
                 };
-
-                // Clone the list using slice
-                nextLevel.theorem.context = obj.currentCont.slice(0);
-
-                // Pushing the new branch to our derivation
-                pushBranch(srvc.derivation, nextLevel, currtid);
-
-                return srvc.derivation;
             };
 
-            srvc.AndElim2 = function(currtid, currpid, logicVars) {
-                var logicList = logicVarsFromString(logicVars);
-
-                var obj = setUpRule(currtid);
-
-                if (obj.currentTheorem.applied) {
-                    AlertService.customAlert("Theorem already has rule applied to it");
-                    throw "Theorem already has rule applied to it, user has been alerted";
-                } else {
-                    obj.currentTheorem.applied = true;
-                }
-
-                // Get the 'a' logic variable
-                var a = logicList[0];
-
-                var nextLevel = {
-                    "theorem": {
-                        "judgement": Prop.And(a, obj.currentJudg),
-                        "context": []
+            var ImpIntro = function() {
+                return {
+                    "name": "Imp Introduction",
+                    "latexName": "\u2283I",
+                    "prop": "Imp",
+                    "logicVariables": [],
+                    "verify": true,
+                    "assumption": {
+                        "context": [],
+                        "goal": Prop.Imp("A", "B")
                     },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
+                    "conclusion": [{
+                        "context": ["A"],
+                        "goal": "B"
+                    }],
+                    "imgSrc": "/static/images/imp-intro.png",
                 };
-
-                // Clone the list using slice
-                nextLevel.theorem.context = obj.currentCont.slice(0);
-
-                // Pushing the new branch to our derivation
-                pushBranch(srvc.derivation, nextLevel, currtid);
-
-                return srvc.derivation;
             };
 
-            srvc.ImpElim = function(currtid, currpid, logicVars) {
-                var logicList = logicVarsFromString(logicVars);
-
-                var obj = setUpRule(currtid);
-
-                if (obj.currentTheorem.applied) {
-                    AlertService.customAlert("Theorem already has rule applied to it");
-                    throw "Theorem already has rule applied to it, user has been alerted";
-                } else {
-                    obj.currentTheorem.applied = true;
-                }
-
-                // Get the 'a' logic variable
-                var a = logicList[0];
-
-                var nextLevel1 = {
-                    "theorem": {
-                        "judgement": Prop.Imp(a, obj.currentJudg),
-                        "context": []
+            var OrIntro1 = function() {
+                return {
+                    "name": "Or Introduction 1",
+                    "latexName": "\u2228I1",
+                    "prop": "Or",
+                    "logicVariables": [],
+                    "verify": true,
+                    "assumption": {
+                        "context": [],
+                        "goal": Prop.Or("A", "B")
                     },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
+                    "conclusion": [{
+                        "context": [],
+                        "goal": "A"
+                    }],
+                    "imgSrc": "/static/images/or-intro1.png",
                 };
-
-                var nextLevel2 = {
-                    "theorem": {
-                        "judgement": a,
-                        "context": []
-                    },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
-                };
-
-                // Clone the list using slice
-                nextLevel1.theorem.context = obj.currentCont.slice(0);
-                nextLevel2.theorem.context = obj.currentCont.slice(0);
-
-                // Pushing the new branch to our derivation
-                pushBranch(srvc.derivation, nextLevel1, currtid);
-                pushBranch(srvc.derivation, nextLevel2, currtid);
-
-                return srvc.derivation;
             };
 
-            srvc.OrElim = function(currtid, currpid, logicVars) {
-                var logicList = logicVarsFromString(logicVars);
-
-                var obj = setUpRule(currtid);
-
-                if (obj.currentTheorem.applied) {
-                    AlertService.customAlert("Theorem already has rule applied to it");
-                    throw "Theorem already has rule applied to it, user has been alerted";
-                } else {
-                    obj.currentTheorem.applied = true;
-                }
-
-                // Get the 'a' logic variable
-                var a = logicList[0];
-                var b = logicList[1];
-
-                var nextLevel1 = {
-                    "theorem": {
-                        "judgement": Prop.Or(a, b),
-                        "context": []
+            var OrIntro2 = function() {
+                return {
+                    "name": "Or Introduction 2",
+                    "latexName": "\u2228I2",
+                    "prop": "Or",
+                    "logicVariables": [],
+                    "verify": true,
+                    "assumption": {
+                        "context": [],
+                        "goal": Prop.Or("A", "B")
                     },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
+                    "conclusion": [{
+                        "context": [],
+                        "goal": "B"
+                    }],
+                    "imgSrc": "/static/images/or-intro2.png",
                 };
+            };
 
-                var nextLevel2 = {
-                    "theorem": {
-                        "judgement": obj.currentJudg,
-                        "context": []
+            var AndElim1 = function() {
+                return {
+                    "name": "And Elimination 1",
+                    "latexName": "\u2227E1",
+                    "prop": "And",
+                    "logicVariables": ['B'],
+                    "verify": false,
+                    "assumption": {
+                        "context": [],
+                        "goal": "A"
                     },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
+                    "conclusion": [{
+                        "context": [],
+                        "goal": Prop.And("A", "B")
+                    }],
+                    "imgSrc": "/static/images/and-elem1.png",
                 };
+            };
 
-                var nextLevel3 = {
-                    "theorem": {
-                        "judgement": obj.currentJudg,
-                        "context": []
+            var AndElim2 = function() {
+                return {
+                    "name": "And Elimination 2",
+                    "latexName": "\u2227E2",
+                    "prop": "And",
+                    "logicVariables": ['A'],
+                    "verify": false,
+                    "assumption": {
+                        "context": [],
+                        "goal": "B"
                     },
-                    "branchid": newID(),
-                    "applied": false,
-                    "parentid": currtid,
-                    "children": []
+                    "conclusion": [{
+                        "context": [],
+                        "goal": Prop.And("A", "B")
+                    }],
+                    "imgSrc": "/static/images/and-elem2.png",
                 };
+            };
 
-                // Clone the list using slice
-                nextLevel1.theorem.context = obj.currentCont.slice(0);
-                nextLevel2.theorem.context = obj.currentCont.slice(0);
-                nextLevel3.theorem.context = obj.currentCont.slice(0);
+            var ImpElim = function() {
+                return {
+                    "name": "Imp Elimination",
+                    "latexName": "\u2283E",
+                    "prop": "Imp",
+                    "logicVariables": ['A'],
+                    "verify": false,
+                    "assumption": {
+                        "context": [],
+                        "goal": "B"
+                    },
+                    "conclusion": [{
+                        "context": [],
+                        "goal": Prop.Imp("A", "B")
+                    },{
+                        "context": [],
+                        "goal": "A"
+                    }],
+                    "imgSrc": "/static/images/imp-elem.png",
+                };
+            };
 
-                nextLevel2.theorem.context.push(a);
-                nextLevel3.theorem.context.push(b);
-
-                // Pushing the new branch to our derivation
-                pushBranch(srvc.derivation, nextLevel1, currtid);
-                pushBranch(srvc.derivation, nextLevel2, currtid);
-                pushBranch(srvc.derivation, nextLevel3, currtid);
-
-                return srvc.derivation;
+            var OrElim = function() {
+                return {
+                    "name": "Or Elimination",
+                    "latexName": "\u2228E",
+                    "prop": "Or",
+                    "logicVariables": ['A', 'B'],
+                    "verify": false,
+                    "assumption": {
+                        "context": [],
+                        "goal": "C"
+                    },
+                    "conclusion": [{
+                        "context": [],
+                        "goal": Prop.Or("A", "B")
+                    }, {
+                        "context": ['A'],
+                        "goal": "C"
+                    }, {
+                        "context": ['B'],
+                        "goal": "C"
+                    }],
+                    "imgSrc": "/static/images/or-elem.png",
+                };
             };
 
             srvc.toString = function(currid) {
@@ -500,63 +416,17 @@
             // the rules that this guy has. These rules should correspond
             // to some formula in Prop.js service.
             srvc.getRuleList = function() {
-                srvc.rules = [{
-                    "name": "And Introduction",
-                    "formulaID": 3,
-                    "hasLogicVariables": false,
-                    "logicVariables": [],
-                    "imgSrc": "/static/images/and-intro.png",
-                    "fn": srvc.AndIntro,
-                }, {
-                    "name": "And Elimination 1",
-                    "formulaID": 3,
-                    "hasLogicVariables": true,
-                    "logicVariables": ['B'],
-                    "imgSrc": "/static/images/and-elem1.png",
-                    "fn": srvc.AndElim1,
-                }, {
-                    "name": "And Elimination 2",
-                    "formulaID": 3,
-                    "hasLogicVariables": true,
-                    "logicVariables": ['A'],
-                    "imgSrc": "/static/images/and-elem2.png",
-                    "fn": srvc.AndElim2,
-                }, {
-                    "name": "Imp Introduction",
-                    "formulaID": 5,
-                    "hasLogicVariables": false,
-                    "logicVariables": [],
-                    "imgSrc": "/static/images/imp-intro.png",
-                    "fn": srvc.ImpIntro,
-                }, {
-                    "name": "Imp Elimination",
-                    "formulaID": 5,
-                    "hasLogicVariables": true,
-                    "logicVariables": ['A'],
-                    "imgSrc": "/static/images/imp-elem.png",
-                    "fn": srvc.ImpElim,
-                }, {
-                    "name": "Or Introduction 1",
-                    "formulaID": 4,
-                    "hasLogicVariables": false,
-                    "logicVariables": [],
-                    "imgSrc": "/static/images/or-intro1.png",
-                    "fn": srvc.OrIntro1,
-                }, {
-                    "name": "Or Introduction 2",
-                    "formulaID": 4,
-                    "hasLogicVariables": false,
-                    "logicVariables": [],
-                    "imgSrc": "/static/images/or-intro2.png",
-                    "fn": srvc.OrIntro2,
-                }, {
-                    "name": "Or Elimination",
-                    "formulaID": 4,
-                    "hasLogicVariables": true,
-                    "logicVariables": ['A', 'B'],
-                    "imgSrc": "/static/images/or-elem.png",
-                    "fn": srvc.OrElim,
-                }, ];
+                srvc.rules = 
+                [
+                    AndIntro(),
+                    ImpIntro(),
+                    OrIntro1(),
+                    OrIntro2(),
+                    AndElim1(),
+                    AndElim2(),
+                    ImpElim(),
+                    OrElim()
+                ];
                 return srvc.rules;
             };
 

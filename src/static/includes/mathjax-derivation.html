@@ -1,24 +1,4 @@
-<!-- <math display="block">
-    <mrow class="beginning">
-        <mstyle displaystyle="true">
-            <mfrac>
-                <mrow id="children{{data.branchid}}" class="conclusion">
-                </mrow>
-                <mrow id="branch{{data.branchid}}" class="assumption">
-                    <mrow id="branch{{data.branchid}}-context" class="context clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
-                        <mo ng-if="$index !== 0">, </mo>
-                        <mi>{{ec.propToString(formula)}}</mi>
-                    </mrow>
-                    <mo>{{ec.entailsSymbol}}</mo>
-                    <mrow id="branch{{data.branchid}}-goal" class="goal clickable" ng-click="ec.setCurrentId(data.branchid, -1)" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
-                        <mi>{{ec.propToString(ec.getTheorem(data.branchid).obj.theorem.judgement)}}</mi>
-                    </mrow>
-                </mrow>
-            </mfrac>
-        </mstyle>
-    </mrow>
-</math> -->
-<math>
+<math display="block">
     <mrow ng-include="'tree_item_renderer.html'">
     </mrow>
 </math>
@@ -28,16 +8,16 @@
             <mrow id="children{{data.branchid}}" class="conclusion">
                 <mrow ng-repeat="data in data.children">
                     <math ng-include="'tree_item_renderer.html'"></math>
-                    <mspace width='1em'></mspace>
+                    <mspace width='1em' ng-if="$index !== (data.length-1)"></mspace>
                 </mrow>
             </mrow>
             <mrow class="assumption">
-                <mrow class="context clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && $index == ec.currentPropId}" ng-click="ec.setCurrentId(data.branchid, $index)">
+                <mrow class="context clickable" ng-repeat="formula in ec.getTheorem(data.branchid).obj.theorem.context track by $index" id="branch{{data.branchid}}-context-{{$index}}">
                     <mo ng-if="$index !== 0">, </mo>
                     <mi>{{ec.propToString(formula)}}</mi>
                 </mrow>
                 <mo>{{ec.entailsSymbol}}</mo>
-                <mrow class="goal clickable" ng-click="ec.setCurrentId(data.branchid, -1)" ng-class="{'chosen-theorem': data.branchid == ec.currentTheoremId && ec.currentPropId == -1}">
+                <mrow id="branch{{data.branchid}}-goal" class="goal clickable">
                     <mi>{{ec.propToString(ec.getTheorem(data.branchid).obj.theorem.judgement)}}</mi>
                 </mrow>
             </mrow>

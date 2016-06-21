@@ -1,0 +1,38 @@
+<math>
+    <mrow>
+        <mstyle displaystyle="true" width="222em">
+            <mfrac>
+                <!-- numerator -->
+                <mrow>
+                    <mrow ng-repeat="conc in rule.conclusion track by $index">
+                        <mi>&#915; </mi>
+                        <mo ng-if="conc.context.length >= 1">, </mo>
+                        <mrow ng-repeat="context in conc.context track by $index">
+                            <mo ng-if="$index !== 0">, </mo>
+                            <mi>{{ec.propToString(context)}}</mi>
+                        </mrow>
+                        <mo>{{ec.entailsSymbol}}</mo>
+                        <mrow>
+                            <mi>{{ec.propToString(conc.goal)}}</mi>
+                        </mrow>
+                        <mspace width='1em' ng-if="$index !== (conc.length-1)"></mspace>
+                    </mrow>
+                </mrow>
+                <!-- denominator -->
+                <mrow>
+                    <mi>&#915; </mi>
+                    <mrow ng-repeat="context in rule.assumption.context track by $index">
+                        <mi>{{ec.propToString(context)}}</mi>
+                    </mrow>
+                    <mo>{{ec.entailsSymbol}}</mo>
+                    <mrow>
+                        <mi>{{ec.propToString(rule.assumption.goal)}}</mi>
+                    </mrow>
+                </mrow>
+            </mfrac>
+            <mrow>
+                <mi>{{rule.latexName}}</mi>
+            </mrow>
+        </mstyle>
+    </mrow>
+</math>

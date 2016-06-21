@@ -10,8 +10,7 @@ body {
 
 .derivation-jumbotron {
     height: 98vh;
-    flex-direction: column-reverse;
-    border-bottom: 2px solid black;
+    position: relative;
     margin-bottom: 10px;
 }
 
@@ -19,10 +18,15 @@ body {
     height: 98vh;
     overflow-y: scroll;
     overflow-x: none;
+    text-align: center;
 }
 
 .content {
-    margin-bottom: 25px;
+    height: auto;
+    padding: 0 5%;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 
 .theorem-top: {
@@ -65,12 +69,13 @@ body {
     z-index: 10;
 }
 
-.rule-img {
+.rule-display {
     cursor: pointer;
-    width: 95%;
+    width: auto;
+    margin: 20px auto;
 }
 
-.rule-img:hover {
+.rule-display:hover {
     opacity: .5;
 }
 
@@ -162,6 +167,6 @@ body {
     visibility: hidden;
 }
 
-#MathJax-Element-1-Frame {
+.mjx-chtml * {
     outline: none;
 }

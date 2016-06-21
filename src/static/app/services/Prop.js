@@ -145,6 +145,11 @@
             };
 
             var toStringPrec = function(p, prop) {
+                
+                if (typeof prop === 'string') {
+                    return prop;
+                }
+
                 var t = prop();
                 var cont0, cont1;
                 var paren;

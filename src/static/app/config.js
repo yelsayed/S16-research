@@ -19,7 +19,7 @@
         })
         .run(function() {
             MathJax.Hub.Config({
-                // skipStartupTypeset: true,
+                skipStartupTypeset: true,
                 messageStyle: "none",
                 mml2jax: {
                     preview: "mathml",
